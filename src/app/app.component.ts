@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {debounceTime, Subscription, switchMap} from "rxjs";
+import {Subscription} from "rxjs";
 import {RandomNumberService} from "./shared/services/random-number.service";
 
 @Component({
@@ -9,7 +9,9 @@ import {RandomNumberService} from "./shared/services/random-number.service";
 })
 export class AppComponent implements OnInit, OnDestroy{
 
-  subjectData!: number;
+  subjectData1!: number;
+  subjectData2!: number;
+  subjectData3!: number;
   private subscription: Subscription | null = null;
 
   constructor(private randomService: RandomNumberService) {
@@ -20,16 +22,12 @@ export class AppComponent implements OnInit, OnDestroy{
   }
 
   randomNumberAction(): void {
-    this.subscription = this.randomService.numberSubject
-      .pipe(
-        switchMap(() => {
-          return this.randomService.getNumber();
-        })
-      )
+    this.subscription = this.randomService.getNumber()
       .subscribe({
         next: (data: number) => {
-          debounceTime(500)
-          this.subjectData = data
+          this.subjectData1 = data
+          this.subjectData2 = data
+          this.subjectData3 = data
         }
       })
   }
