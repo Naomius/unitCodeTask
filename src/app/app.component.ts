@@ -1,5 +1,5 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Subscription} from "rxjs";
+import {Component, OnInit} from '@angular/core';
+import {BehaviorSubject, Observable, shareReplay, switchMap} from "rxjs";
 import {RandomNumberService} from "./shared/services/random-number.service";
 
 @Component({
@@ -7,12 +7,13 @@ import {RandomNumberService} from "./shared/services/random-number.service";
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit, OnDestroy{
+export class AppComponent implements OnInit{
 
-  subjectData1!: number;
-  subjectData2!: number;
-  subjectData3!: number;
-  private subscription: Subscription | null = null;
+  subjectData1!: Observable<number>;
+  subjectData2!: Observable<number>;
+  subjectData3!: Observable<number>;
+
+  event$ = new BehaviorSubject(0)
 
   constructor(private randomService: RandomNumberService) {
   }
@@ -22,19 +23,13 @@ export class AppComponent implements OnInit, OnDestroy{
   }
 
   randomNumberAction(): void {
-    this.subscription = this.randomService.getNumber()
-      .subscribe({
-        next: (data: number) => {
-          this.subjectData1 = data
-          this.subjectData2 = data
-          this.subjectData3 = data
-        }
-      })
+    this.subjectData1 = this.subjectData2 = this.subjectData3 =
+      this.event$.pipe(
+        switchMap(() => this.randomService.getNumber()),
+        shareReplay(),
+      )
   }
 
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
-  }
 
 
 }
